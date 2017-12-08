@@ -28,7 +28,7 @@ public class TwoLinkedListMerge {
         Node a = headA;
         Node b = headB;
 
-        for (int i = 2; i < 40; i++) {
+        for (int i = 2; i < 100; i++) {
             if (r.nextBoolean()) {
                 a.next = new Node(i);
                 a = a.next;
@@ -41,8 +41,8 @@ public class TwoLinkedListMerge {
 
 
     public static void main(String[] args) {
-        printList(headA);
-        printList(headB);
+        //printList(headA);
+        //printList(headB);
 
         Node head = mergeLinkedList(headA, headB);
 
@@ -58,60 +58,67 @@ public class TwoLinkedListMerge {
             return headA;
         }
 
-        Node spa = headA;
-        Node spb = headB;   //两个链表的元素比较时，比较大小的情况发生反转时的起始节点
+        Node spa;
         Node cpa = headA;   //指向链表A当前循环位置的指针
         Node cpb = headB;   //指向链表B当前循环位置的指针
         Node head = headA.value <= headB.value ? headA : headB;
 
-        while (true) {
+        while (cpa != null) {
 
             if (cpa.value <= cpb.value) {
+                while (cpa.next != null && cpa.next.value <= cpb.value) {
+                    cpa = cpa.next;
+                }
+
+                //1.cap.next==null 2.cpa.next.value>cpb.value
                 if (cpa.next == null) {
+                    //如果cpa的元素均小于cpb，那么把cpa放到cpb的前头即可
                     cpa.next = cpb;
                     break;
                 } else {
-                    if (cpa.next.value <= cpb.value) {
-                        cpa = cpa.next;
-                    } else {
-                        spa = cpa.next;
-                        cpa.next = cpb;
-                        cpa = spa;
-                    }
+                    Node tmp = cpa.next;
+                    cpa.next = cpb;
+                    cpa = tmp;
                 }
+
             } else {
-                //cpa.value>cpb.value
 
-                if (cpa.next == null && cpb.next != null) {
-                    while (true) {
-                        if (cpb.next.value <= cpa.value) {
-                            cpb = cpb.next;
+                if (cpa.value > cpb.next.value) {
+                    //cpa>cpb && cpa>cpb.next
 
-                            if (cpb.next == null) {
-                                cpb.next = spa;
-                                break;
-                            }
-                        } else {
-                            spb = cpb.next;
-                            cpb.next = spa;
-                            cpa.next = spb;
-                            break;
-                        }
+                    //主要进行B链表指针的挪动
+
+                    while (cpb.next != null && cpa.value > cpb.next.value) {
+                        cpb = cpb.next;
                     }
-                    break;
-                } else if (cpb.next == null) {
-                    cpb.next = cpa;
-                    break;
+
+                    if (cpb.next == null) {
+                        cpb.next = cpa;
+                        break;
+                    }
+
                 } else {
-                    if (cpa.next.value <= cpb.next.value) {
+                    //cpa>cpb && cpa<cpb.next
+
+                    //记录第一个比当前cpb大的cpa
+                    spa = cpa;
+
+                    while (cpa.next != null && cpa.next.value <= cpb.next.value) {
                         cpa = cpa.next;
-                    } else {
-                        spb = cpb.next;
+                    }
+
+                    if (cpa.next == null) {
+                        Node tmp = cpb.next;
                         cpb.next = spa;
-                        spa = cpa.next;
-                        cpa.next = cpb.next;
-                        cpb = spb;
-                        cpa = spa;
+                        cpa.next = tmp;
+
+                    } else {
+
+                        Node tmpA = cpa.next;
+                        Node tmpB = cpb.next;
+                        cpb.next = spa;
+                        cpa.next = tmpB;
+                        cpa = tmpA;
                     }
                 }
             }
@@ -126,10 +133,13 @@ public class TwoLinkedListMerge {
         }
 
         Node node = head;
+        int i=0;
         while (node != null) {
             System.out.print(node.value + " ");
             node = node.next;
+            if (++i % 10 == 0) {
+                System.out.println();
+            }
         }
-        System.out.println();
     }
 }
