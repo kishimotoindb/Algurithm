@@ -44,13 +44,15 @@ public class TwoLinkedListMerge {
         //printList(headA);
         //printList(headB);
 
-        Node head = mergeLinkedList(headA, headB);
+//        Node head1 = mergeLinkedList1(headA, headB);
+        Node head2 = mergeLinkedList2(headA, headB);
 
-        printList(head);
+//      printList(head1);
+        printList(head2);
     }
 
-    //往B里插入A
-    private static Node mergeLinkedList(Node headA, Node headB) {
+    //往B里插入A(有问题，95行的while有时会死循环)，这个写法太复杂了，逻辑不清晰。正确的见下面的方法mergeLinkedList2
+    private static Node mergeLinkedList1(Node headA, Node headB) {
         if (headA == null && headB == null) return null;
         else if (headA == null) {
             return headB;
@@ -64,10 +66,12 @@ public class TwoLinkedListMerge {
         Node head = headA.value <= headB.value ? headA : headB;
 
         while (cpa != null) {
+            System.out.println("while cpa!=null");
 
             if (cpa.value <= cpb.value) {
                 while (cpa.next != null && cpa.next.value <= cpb.value) {
                     cpa = cpa.next;
+                    System.out.println("while cpa.next != null && cpa.next.value <= cpb.value");
                 }
 
                 //1.cap.next==null 2.cpa.next.value>cpb.value
@@ -87,9 +91,11 @@ public class TwoLinkedListMerge {
                     //cpa>cpb && cpa>cpb.next
 
                     //主要进行B链表指针的挪动
-
                     while (cpb.next != null && cpa.value > cpb.next.value) {
                         cpb = cpb.next;
+                        System.out.println("while (cpb.next != null && cpa.value > cpb.next.value) ");
+                        System.out.println("cpa.value is " + cpa.value);
+                        System.out.println("cpb.value is " + cpb.value);
                     }
 
                     if (cpb.next == null) {
@@ -105,6 +111,7 @@ public class TwoLinkedListMerge {
 
                     while (cpa.next != null && cpa.next.value <= cpb.next.value) {
                         cpa = cpa.next;
+                        System.out.println(" while (cpa.next != null && cpa.next.value <= cpb.next.value)");
                     }
 
                     if (cpa.next == null) {
@@ -126,6 +133,50 @@ public class TwoLinkedListMerge {
         return head;
     }
 
+    //往B里插入A
+    private static Node mergeLinkedList2(Node headA, Node headB) {
+        if (headA == null && headB == null) return null;
+        else if (headA == null) {
+            return headB;
+        } else if (headB == null) {
+            return headA;
+        }
+
+        Node prevBPointer = headB;   //指向链表B当前循环位置上一个位置的指针
+        Node curBPointer = headB;    //指向链表B当前循环位置的指针
+        Node prevAPointer = headA;   //指向链表A当前循环位置上一个位置的指针
+        Node curAPointer = headA;    //指向链表A当前循环位置的指针
+        Node headerOfResult = headA.value < headB.value ? headA : headB;
+
+        while (curBPointer != null) {
+
+            if (curAPointer.value <= curBPointer.value) {
+
+                while (curAPointer != null && curAPointer.value <= curBPointer.value) {
+                    prevAPointer = curAPointer;
+                    curAPointer = curAPointer.next;
+                }
+
+                prevAPointer.next = curBPointer;
+
+                if (curAPointer == null) {
+                    break;
+                }
+
+            } else {
+
+                while (curBPointer != null && curAPointer.value > curBPointer.value) {
+                    prevBPointer = curBPointer;
+                    curBPointer = curBPointer.next;
+                }
+
+                prevBPointer.next = curAPointer;
+
+            }
+        }
+        return headerOfResult;
+    }
+
     private static void printList(Node head) {
         if (head == null) {
             System.out.println("列表为空");
@@ -133,7 +184,7 @@ public class TwoLinkedListMerge {
         }
 
         Node node = head;
-        int i=0;
+        int i = 0;
         while (node != null) {
             System.out.print(node.value + " ");
             node = node.next;
